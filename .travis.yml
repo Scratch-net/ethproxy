@@ -1,0 +1,12 @@
+services:
+  - docker
+
+language: go
+
+go:
+  - stable
+
+script:
+  - make lint
+  - make tests
+  - make dockerise
