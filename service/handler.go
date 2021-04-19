@@ -9,25 +9,38 @@ import (
 	"github.com/scratch-net/ethproxy/controller"
 )
 
-type Handler struct {
-	app *controller.EthProxyController
+type Handler interface {
+	HandleTxRequest(request *http.Request) ([]byte, error)
+	HandleBlockRequest(request *http.Request) ([]byte, error)
 }
 
-func NewHandler(ctrl *controller.EthProxyController) (*Handler, error) {
+type ProxyHandler struct {
+	app controller.ProxyController
+}
+
+func NewHandler(ctrl controller.ProxyController) (Handler, error) {
 	if ctrl == nil {
 		return nil, api.ErrControllerNotSet
 	}
 
-	return &Handler{
+	return &ProxyHandler{
 		app: ctrl,
 	}, nil
 }
 
-func (h *Handler) HandleRequest(request *http.Request) (*api.Transaction, error) {
+func (h *ProxyHandler) HandleTxRequest(request *http.Request) ([]byte, error) {
 	vars := mux.Vars(request)
 
 	blockNum := vars["block"]
 	txIndex := vars["tx"]
 
 	return h.app.FetchTransaction(blockNum, txIndex)
+}
+
+func (h *ProxyHandler) HandleBlockRequest(request *http.Request) ([]byte, error) {
+	vars := mux.Vars(request)
+
+	blockNum := vars["block"]
+
+	return h.app.FetchBlock(blockNum)
 }

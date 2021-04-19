@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
 
@@ -10,11 +9,11 @@ import (
 	"github.com/scratch-net/ethproxy/api"
 )
 
-type HTTPFunc func(req *http.Request) (*api.Transaction, error)
+type HTTPFunc func(req *http.Request) ([]byte, error)
 
 func Handle(f HTTPFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tx, err := f(r)
+		res, err := f(r)
 
 		if err != nil {
 			if httpErr, ok := err.(*api.HTTPError); ok {
@@ -29,19 +28,9 @@ func Handle(f HTTPFunc) http.HandlerFunc {
 			}
 			return
 		}
-
-		data, err := json.Marshal(tx)
+		_, err = w.Write(res)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Errorf("[Error] HTTP 5xx, can't marshal response: %+v", err)
-
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		if _, err = w.Write(data); err != nil {
 			log.Errorf("[Error] can't write response: %+v", err)
-			return
 		}
 	}
 }

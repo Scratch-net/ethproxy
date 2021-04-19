@@ -25,9 +25,11 @@ type Transaction struct {
 }
 
 type Block struct {
-	TxByHash     map[string]*Transaction `json:"-"`
-	Number       string                  `json:"number"`
-	Transactions []*Transaction          `json:"transactions"`
+	TxByHash     map[string][]byte `json:"-"`
+	TxByIndex    [][]byte          `json:"-"`
+	BlockBytes   []byte            `json:"-"`
+	Number       string            `json:"number"`
+	Transactions []*Transaction    `json:"transactions"`
 }
 
 type Response struct {

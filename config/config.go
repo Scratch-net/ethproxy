@@ -12,7 +12,7 @@ type Config struct {
 	CacheSize     int64         `default:"5000" split_words:"true"`
 	ClientTimeout time.Duration `default:"5s" split_words:"true"`
 	ReadTimeout   time.Duration `default:"5s" split_words:"true"`
-	WriteTimeout  time.Duration `default:"5s" split_words:"true"`
+	WriteTimeout  time.Duration `default:"500s" split_words:"true"`
 }
 
 func New() (*Config, error) {

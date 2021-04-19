@@ -29,7 +29,7 @@ type BlockCacheStorage struct {
 	singleFlightGroup singleflight.Group
 }
 
-func NewBlockCacheStorage(fetcher fetcher.BlockFetcher, cacheSize int64) (*BlockCacheStorage, error) {
+func NewBlockCacheStorage(fetcher fetcher.BlockFetcher, cacheSize int64) (BlockCache, error) {
 
 	if fetcher == nil {
 		return nil, api.ErrFetcherNotInitialized

@@ -98,9 +98,22 @@ func (c *CloudflareEthClient) FetchBlock(number string) (*api.Block, error) {
 
 	block := response.Block
 
-	block.TxByHash = make(map[string]*api.Transaction)
-	for _, tx := range block.Transactions {
-		block.TxByHash[tx.Hash] = tx
+	block.TxByHash = make(map[string][]byte)
+	block.TxByIndex = make([][]byte, len(block.Transactions))
+
+	block.BlockBytes, err = json.Marshal(response.Block)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, tx := range block.Transactions {
+
+		txBytes, err := json.Marshal(tx)
+		if err != nil {
+			return nil, err
+		}
+		block.TxByIndex[i] = txBytes
+		block.TxByHash[tx.Hash] = txBytes
 	}
 
 	return block, nil

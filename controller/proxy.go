@@ -7,11 +7,16 @@ import (
 	"github.com/scratch-net/ethproxy/cache"
 )
 
+type ProxyController interface {
+	FetchTransaction(blockNumber, tx string) ([]byte, error)
+	FetchBlock(blockNumber string) ([]byte, error)
+}
+
 type EthProxyController struct {
 	blockCache cache.BlockCache
 }
 
-func New(cache cache.BlockCache) (*EthProxyController, error) {
+func New(cache cache.BlockCache) (ProxyController, error) {
 
 	if cache == nil {
 		return nil, api.ErrCacheNotInitialized
@@ -22,7 +27,7 @@ func New(cache cache.BlockCache) (*EthProxyController, error) {
 }
 
 // FetchTransaction retrieves a block and tries to get tx either by index or by hash
-func (e *EthProxyController) FetchTransaction(blockNumber, tx string) (*api.Transaction, error) {
+func (e *EthProxyController) FetchTransaction(blockNumber, tx string) ([]byte, error) {
 	block, err := e.blockCache.Get(blockNumber)
 	if err != nil {
 		return nil, err
@@ -39,7 +44,16 @@ func (e *EthProxyController) FetchTransaction(blockNumber, tx string) (*api.Tran
 		return nil, api.ErrTransactionNotFound
 	}
 	if txNum < len(block.Transactions) {
-		return block.Transactions[txNum], nil
+		return block.TxByIndex[txNum], nil
 	}
 	return nil, api.ErrTransactionNotFound
+}
+
+// FetchBlock retrieves a block
+func (e *EthProxyController) FetchBlock(blockNumber string) ([]byte, error) {
+	block, err := e.blockCache.Get(blockNumber)
+	if err != nil {
+		return nil, err
+	}
+	return block.BlockBytes, nil
 }
